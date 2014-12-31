@@ -122,6 +122,48 @@ int test_vpn_settings_init(void)
 	return 1;
 }
 
+int test_vpn_settings_add(void)
+{
+	int rv = 0;
+	char buf[100];
+
+	_test_get_user_input(&buf[0], "Type");
+	rv = vpn_settings_set_type(&buf[0]);
+	if (rv != VPN_ERROR_NONE) {
+		printf("Fail to VPN Settings Type[%s]\n",
+				__test_convert_error_to_string(rv));
+		return -1;
+	}
+
+	_test_get_user_input(&buf[0], "Name");
+	rv = vpn_settings_set_name(&buf[0]);
+	if (rv != VPN_ERROR_NONE) {
+		printf("Fail to VPN Settings Name[%s]\n",
+				__test_convert_error_to_string(rv));
+		return -1;
+	}
+
+	_test_get_user_input(&buf[0], "Host");
+	rv = vpn_settings_set_host(&buf[0]);
+	if (rv != VPN_ERROR_NONE) {
+		printf("Fail to VPN Settings Host[%s]\n",
+				__test_convert_error_to_string(rv));
+		return -1;
+	}
+
+	_test_get_user_input(&buf[0], "Domain");
+	rv = vpn_settings_set_domain(&buf[0]);
+	if (rv != VPN_ERROR_NONE) {
+		printf("Fail to VPN Settings Domain[%s]\n",
+				__test_convert_error_to_string(rv));
+		return -1;
+	}
+
+	printf("Success Creating Settings API's\n");
+
+	return 1;
+}
+
 int test_vpn_settings_deinit(void)
 {
 	int rv = 0;
@@ -201,6 +243,7 @@ gboolean test_thread(GIOChannel *source, GIOCondition condition, gpointer data)
 		printf("3 	- VPN Settings Initialize - Initialize Settings for Creating a VPN profile\n");
 		printf("4 	- VPN Settings Delete - Delete Settings VPN profile\n");
 		printf("5 	- VPN Settings Set Specific - Allows to add a specific setting\n");
+		printf("6 	- VPN Settings Add - Add Type,Host,Name,Domain settings\n");
 		printf("0 	- Exit \n");
 
 		printf("ENTER  - Show options menu.......\n");
@@ -221,6 +264,9 @@ gboolean test_thread(GIOChannel *source, GIOCondition condition, gpointer data)
 		break;
 	case '5':
 		rv = test_vpn_settings_set_specific();
+		break;
+	case '6':
+		rv = test_vpn_settings_add();
 		break;
 	default:
 		break;

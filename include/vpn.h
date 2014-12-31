@@ -125,6 +125,54 @@ int vpn_settings_deinit();
 int vpn_settings_set_specific(const char *key, const char *value);
 
 /**
+* @brief Sets VPN Type
+* @param[in] type  The VPN Settings Type
+* @return 0 on success, otherwise negative error value.
+* @retval #VPN_ERROR_NONE  Successful
+* @retval #VPN_ERROR_INVALID_OPERATION  Invalid operation
+* @pre vpn_settings_init() must be  called before calling this API
+* @retval #VPN_ERROR_OPERATION_FAILED  Operation failed
+* @see vpn_settings_deinit() vpn_settings_init()
+*/
+int vpn_settings_set_type(const char *type);
+
+/**
+* @brief Sets VPN Profile Name
+* @param[in] name  The VPN Settings Name
+* @return 0 on success, otherwise negative error value.
+* @retval #VPN_ERROR_NONE  Successful
+* @retval #VPN_ERROR_INVALID_OPERATION  Invalid operation
+* @pre vpn_settings_init() must be  called before calling this API
+* @retval #VPN_ERROR_OPERATION_FAILED  Operation failed
+* @see vpn_settings_deinit() vpn_settings_init()
+*/
+int vpn_settings_set_name(const char *name);
+
+/**
+* @brief Sets VPN Profile Host (Name or Address)
+* @param[in] host  The VPN Settings Host
+* @return 0 on success, otherwise negative error value.
+* @retval #VPN_ERROR_NONE  Successful
+* @retval #VPN_ERROR_INVALID_OPERATION  Invalid operation
+* @pre vpn_settings_init() must be  called before calling this API
+* @retval #VPN_ERROR_OPERATION_FAILED  Operation failed
+* @see vpn_settings_deinit() vpn_settings_init()
+*/
+int vpn_settings_set_host(const char *host);
+
+/**
+* @brief Sets VPN Profile Domain
+* @param[in] domain  The VPN Settings Domain
+* @return 0 on success, otherwise negative error value.
+* @retval #VPN_ERROR_NONE  Successful
+* @retval #VPN_ERROR_INVALID_OPERATION  Invalid operation
+* @pre vpn_settings_init() must be  called before calling this API
+* @retval #VPN_ERROR_OPERATION_FAILED  Operation failed
+* @see vpn_settings_deinit() vpn_settings_init()
+*/
+int vpn_settings_set_domain(const char *domain);
+
+/**
 * @}
 */
 

@@ -115,3 +115,72 @@ EXPORT_API int vpn_settings_set_specific(const char *key, const char *value)
 	return rv;
 }
 
+
+EXPORT_API int vpn_settings_set_type(const char *type)
+{
+	int rv;
+
+	if (is_init == false) {
+		VPN_LOG(VPN_ERROR, "Not initialized\n");
+		return VPN_ERROR_INVALID_OPERATION;
+	}
+
+	rv = _vpn_settings_set_specific("Type", type);
+
+	if (rv != VPN_ERROR_NONE)
+		VPN_LOG(VPN_ERROR, "Error!! VPN Settings Deinit failed.\n");
+
+	return rv;
+}
+
+EXPORT_API int vpn_settings_set_name(const char *name)
+{
+	int rv;
+
+	if (is_init == false) {
+		VPN_LOG(VPN_ERROR, "Not initialized\n");
+		return VPN_ERROR_INVALID_OPERATION;
+	}
+
+	rv = _vpn_settings_set_specific("Name", name);
+
+	if (rv != VPN_ERROR_NONE)
+		VPN_LOG(VPN_ERROR, "Error!! VPN Settings Deinit failed.\n");
+
+	return rv;
+}
+
+EXPORT_API int vpn_settings_set_host(const char *host)
+{
+	int rv;
+
+	if (is_init == false) {
+		VPN_LOG(VPN_ERROR, "Not initialized\n");
+		return VPN_ERROR_INVALID_OPERATION;
+	}
+
+	rv = _vpn_settings_set_specific("Host", host);
+
+	if (rv != VPN_ERROR_NONE)
+		VPN_LOG(VPN_ERROR, "Error!! VPN Settings Deinit failed.\n");
+
+	return rv;
+}
+
+EXPORT_API int vpn_settings_set_domain(const char *domain)
+{
+	int rv;
+
+	if (is_init == false) {
+		VPN_LOG(VPN_ERROR, "Not initialized\n");
+		return VPN_ERROR_INVALID_OPERATION;
+	}
+
+	rv = _vpn_settings_set_specific("Domain", domain);
+
+	if (rv != VPN_ERROR_NONE)
+		VPN_LOG(VPN_ERROR, "Error!! VPN Settings Deinit failed.\n");
+
+	return rv;
+}
+
