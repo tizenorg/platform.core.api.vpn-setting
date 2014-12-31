@@ -33,6 +33,10 @@ struct _vpn_cb_s {
 	void *create_user_data;
 	vpn_removed_cb remove_cb;
 	void *remove_user_data;
+	vpn_connect_cb connect_cb;
+	void *connect_user_data;
+	vpn_disconnect_cb disconnect_cb;
+	void *disconnect_user_data;
 };
 
 static struct _vpn_cb_s vpn_callbacks = {0,};
@@ -236,5 +240,178 @@ int _vpn_remove(vpn_h handle, vpn_removed_cb callback, void *user_data)
 	if (err != CONNMAN_LIB_ERR_NONE)
 		return _connman_lib_error2vpn_error(err);
 
+	return VPN_ERROR_NONE;
+}
+
+/*
+ *Connect Disconnect Callbacks
+ */
+
+static void __vpn_connect_cb(vpn_error_e result)
+{
+	if (vpn_callbacks.connect_cb)
+		vpn_callbacks.connect_cb(result,
+				vpn_callbacks.connect_user_data);
+
+	vpn_callbacks.connect_cb = NULL;
+	vpn_callbacks.connect_user_data = NULL;
+}
+
+static void vpn_manager_connect_cb(enum connman_lib_err result,
+							void *user_data)
+{
+	VPN_LOG(VPN_INFO, "callback: %d Settings: %p\n", result, user_data);
+
+	__vpn_connect_cb(_connman_lib_error2vpn_error(result));
+}
+
+/*
+ *Connect to VPN Profile
+ */
+
+int _vpn_connect(vpn_h handle, vpn_removed_cb callback, void *user_data)
+{
+	enum connman_lib_err err = CONNMAN_LIB_ERR_NONE;
+
+	VPN_LOG(VPN_INFO, "");
+
+	vpn_callbacks.connect_cb = callback;
+	vpn_callbacks.connect_user_data = user_data;
+
+	GList *connections = vpn_get_connections();
+	if (NULL == g_list_find(connections, handle)) {
+		VPN_LOG(VPN_ERROR, "No Connections with the %p Handle", handle);
+		return VPN_ERROR_INVALID_PARAMETER;
+	}
+
+	enum vpn_connection_state state = vpn_connection_get_state(handle);
+	if (state == VPN_CONN_STATE_READY)
+		return VPN_ERROR_ALREADY_EXISTS;
+
+	err = vpn_connection_connect(handle, vpn_manager_connect_cb, NULL);
+	if (err != CONNMAN_LIB_ERR_NONE)
+		return _connman_lib_error2vpn_error(err);
+
+	return VPN_ERROR_NONE;
+}
+
+/*
+ *Disconnect from VPN Profile
+ */
+
+int _vpn_disconnect(vpn_h handle)
+{
+	enum connman_lib_err err = CONNMAN_LIB_ERR_NONE;
+
+	VPN_LOG(VPN_INFO, "");
+
+	GList *connections = vpn_get_connections();
+	if (NULL == g_list_find(connections, handle)) {
+		VPN_LOG(VPN_ERROR, "No Connections with the %p Handle", handle);
+		return VPN_ERROR_INVALID_PARAMETER;
+	}
+
+	enum vpn_connection_state state = vpn_connection_get_state(handle);
+	if (state != VPN_CONN_STATE_READY)
+		return VPN_ERROR_NO_CONNECTION;
+
+	err = vpn_connection_disconnect(handle);
+	if (err != CONNMAN_LIB_ERR_NONE)
+		return _connman_lib_error2vpn_error(err);
+
+	return VPN_ERROR_NONE;
+}
+
+/*
+ *Gets the VPN Handles List from VPN Profile
+ */
+GList *_vpn_get_vpn_handle_list(void)
+{
+	return vpn_get_connections();
+}
+
+/*
+ * Get a specific VPN Handle based on host & domain parameters
+ */
+int _vpn_get_vpn_handle(const char *host, const char *domain, vpn_h *handle)
+{
+	VPN_LOG(VPN_INFO, "");
+
+	struct vpn_connection *connection = vpn_get_connection(host, domain);
+
+	if (connection == NULL) {
+		VPN_LOG(VPN_ERROR, "host=%s domain=%s", host, domain);
+		return VPN_ERROR_INVALID_PARAMETER;
+	}
+
+	*handle = connection;
+	return VPN_ERROR_NONE;
+}
+
+/*
+ * Get VPN Info (Name) from VPN Handle
+ */
+int _vpn_get_vpn_info_name(vpn_h handle, const char **name)
+{
+	VPN_LOG(VPN_INFO, "");
+
+	GList *connections = vpn_get_connections();
+	if (NULL == g_list_find(connections, handle)) {
+		VPN_LOG(VPN_ERROR, "No Connections with the %p Handle", handle);
+		return VPN_ERROR_INVALID_PARAMETER;
+	}
+
+	*name = vpn_connection_get_name(handle);
+	return VPN_ERROR_NONE;
+}
+
+/*
+ * Get VPN Info (Type) from VPN Handle
+ */
+int _vpn_get_vpn_info_type(vpn_h handle, const char **type)
+{
+	VPN_LOG(VPN_INFO, "");
+
+	GList *connections = vpn_get_connections();
+	if (NULL == g_list_find(connections, handle)) {
+		VPN_LOG(VPN_ERROR, "No Connections with the %p Handle", handle);
+		return VPN_ERROR_INVALID_PARAMETER;
+	}
+
+	*type = vpn_connection_get_type(handle);
+	return VPN_ERROR_NONE;
+}
+
+/*
+ * Get VPN Info (Host) from VPN Handle
+ */
+int _vpn_get_vpn_info_host(vpn_h handle, const char **host)
+{
+	VPN_LOG(VPN_INFO, "");
+
+	GList *connections = vpn_get_connections();
+	if (NULL == g_list_find(connections, handle)) {
+		VPN_LOG(VPN_ERROR, "No Connections with the %p Handle", handle);
+		return VPN_ERROR_INVALID_PARAMETER;
+	}
+
+	*host = vpn_connection_get_host(handle);
+	return VPN_ERROR_NONE;
+}
+
+/*
+ * Get VPN Info (Domain) from VPN Handle
+ */
+int _vpn_get_vpn_info_domain(vpn_h handle, const char **domain)
+{
+	VPN_LOG(VPN_INFO, "");
+
+	GList *connections = vpn_get_connections();
+	if (NULL == g_list_find(connections, handle)) {
+		VPN_LOG(VPN_ERROR, "No Connections with the %p Handle", handle);
+		return VPN_ERROR_INVALID_PARAMETER;
+	}
+
+	*domain = vpn_connection_get_domain(handle);
 	return VPN_ERROR_NONE;
 }

@@ -67,6 +67,15 @@ int _vpn_settings_set_specific(const char *key, const char *value);
 int _vpn_create(vpn_created_cb callback, void *user_data);
 int _vpn_remove(vpn_h handle, vpn_removed_cb callback, void *user_data);
 
+int _vpn_connect(vpn_h handle, vpn_removed_cb callback, void *user_data);
+int _vpn_disconnect(vpn_h handle);
+
+GList *_vpn_get_vpn_handle_list(void);
+int _vpn_get_vpn_handle(const char *host, const char *domain, vpn_h *handle);
+int _vpn_get_vpn_info_name(vpn_h handle, const char **name);
+int _vpn_get_vpn_info_type(vpn_h handle, const char **type);
+int _vpn_get_vpn_info_host(vpn_h handle, const char **host);
+int _vpn_get_vpn_info_domain(vpn_h handle, const char **domain);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -84,6 +84,27 @@ typedef void(*vpn_removed_cb)(vpn_error_e result, void *user_data);
 * @}
 */
 
+/**
+* @brief Called after vpn_connect() is completed.
+* @param[in] result  The result
+* @param[in] user_data The user data passed from vpn_connect()
+* @pre vpn_connect() will invoke this callback function.
+* @see vpn_connect()
+*/
+typedef void(*vpn_connect_cb)(vpn_error_e result, void *user_data);
+
+/**
+* @brief Called after vpn_disconnect() is completed.
+* @param[in] result  The result
+* @param[in] user_data The user data passed from vpn_disconnect()
+* @pre vpn_disconnect() will invoke this callback function.
+* @see vpn_disconnect()
+*/
+typedef void(*vpn_disconnect_cb)(vpn_error_e result, void *user_data);
+/**
+* @}
+*/
+
 
 /**
 * @addtogroup CAPI_NETWORK_VPN_MODULE
@@ -242,6 +263,117 @@ int vpn_create(vpn_created_cb callback, void *user_data);
 * @see vpn_create()
 */
 int vpn_remove(vpn_h handle, vpn_removed_cb callback, void *user_data);
+
+/**
+* @}
+*/
+
+
+/**
+* @addtogroup CAPI_NETWORK_VPN_CONNECTION_MODULE
+* @{
+*/
+
+/**
+* @brief Connect to a VPN Profile, asynchronously.
+* @param[in] settings  The VPN related Settings Handler, This can't be NULL.
+* @param[in] callback  The callback function to be called.
+*   This can be NULL if you don't want to get the notification.
+* @param[in] user_data The user data passed to the callback function
+* @return 0 on success, otherwise negative error value.
+* @retval #VPN_ERROR_NONE  Successful
+* @retval #VPN_ERROR_INVALID_OPERATION  Invalid operation
+* @retval #VPN_ERROR_OPERATION_FAILED  Operation failed
+* @retval #VPN_ERROR_ALREADY_EXISTS  Restricted by security system policy
+* @see vpn_connect_cb()
+* @see vpn_disconnect()
+*/
+int vpn_connect(vpn_h handle, vpn_connect_cb callback, void *user_data);
+
+/**
+* @brief Disconnect from VPN Profile, asynchronously.
+* @param[in] handle  The VPN Connection Identifier.
+* @param[in] callback  The callback function to be called.
+*   This can be NULL if you don't want to get the notification.
+* @param[in] user_data The user data passed to the callback function
+* @return 0 on success, otherwise negative error value.
+* @retval #VPN_ERROR_NONE  Successful
+* @retval #VPN_ERROR_INVALID_OPERATION  Invalid operation
+* @retval #VPN_ERROR_OPERATION_FAILED  Operation failed
+* @retval #VPN_ERROR_NO_CONNECTION  No Connection
+* @see vpn_disconnect_cb()
+* @see vpn_connect()
+*/
+int vpn_disconnect(vpn_h handle, vpn_disconnect_cb callback, void *user_data);
+
+/**
+* @brief Gets the VPN Handle List.
+* @return Valid GList Pointer on success, otherwise NULL.
+* @see vpn_get_vpn_handle()
+*/
+GList *vpn_get_vpn_handle_list(void);
+
+/**
+* @brief Get Specific VPN Handle based on host & domain.
+* @param[in] host  The VPN Host Identifier.
+* @param[in] domain  The VPN Domain Identifier.
+* @param[out] handle The VPN handle that matches host & domain.
+* @return 0 on success, otherwise negative error value.
+* @retval #VPN_ERROR_NONE  Successful
+* @retval #VPN_ERROR_INVALID_OPERATION  Invalid operation
+* @retval #VPN_ERROR_INVALID_PARAMETER  Operation failed
+* @see vpn_get_vpn_handle_list()
+*/
+int vpn_get_vpn_handle(const char *host, const char *domain, vpn_h *handle);
+
+/**
+* @brief Get VPN Info (Name)
+* @param[in] handle The VPN handle for the Request
+* @param[out] name  Name of the VPN
+* @return 0 on success, otherwise negative error value.
+* @retval #VPN_ERROR_NONE  Successful
+* @retval #VPN_ERROR_INVALID_OPERATION  Invalid operation
+* @retval #VPN_ERROR_INVALID_PARAMETER  Operation failed
+*/
+int vpn_get_vpn_info_name(const vpn_h handle, const char **name);
+
+/**
+* @brief Get VPN Info (Type)
+* @param[in] handle The VPN handle for the Request
+* @param[out] type  Type of the VPN
+* @return 0 on success, otherwise negative error value.
+* @retval #VPN_ERROR_NONE  Successful
+* @retval #VPN_ERROR_INVALID_OPERATION  Invalid operation
+* @retval #VPN_ERROR_INVALID_PARAMETER  Operation failed
+*/
+int vpn_get_vpn_info_type(const vpn_h handle, const char **type);
+
+/**
+* @brief Get VPN Info (Host)
+* @param[in] handle The VPN handle for the Request
+* @param[out] host  Host of the VPN
+* @return 0 on success, otherwise negative error value.
+* @retval #VPN_ERROR_NONE  Successful
+* @retval #VPN_ERROR_INVALID_OPERATION  Invalid operation
+* @retval #VPN_ERROR_INVALID_PARAMETER  Operation failed
+*/
+int vpn_get_vpn_info_host(const vpn_h handle, const char **host);
+
+/**
+* @brief Get VPN Info (Domain)
+* @param[in] handle The VPN handle for the Request
+* @param[out] domain  Domain of the VPN
+* @return 0 on success, otherwise negative error value.
+* @retval #VPN_ERROR_NONE  Successful
+* @retval #VPN_ERROR_INVALID_OPERATION  Invalid operation
+* @retval #VPN_ERROR_INVALID_PARAMETER  Operation failed
+*/
+int vpn_get_vpn_info_domain(const vpn_h handle, const char **domain);
+
+/**
+* @}
+*/
+
 #ifdef __cplusplus
 }
 #endif

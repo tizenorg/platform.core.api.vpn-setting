@@ -223,3 +223,166 @@ int vpn_remove(vpn_h handle, vpn_removed_cb callback, void *user_data)
 
 	return rv;
 }
+
+EXPORT_API
+int vpn_connect(vpn_h handle, vpn_connect_cb callback, void *user_data)
+{
+	int rv;
+
+	if (is_init == false) {
+		VPN_LOG(VPN_ERROR, "Not initialized\n");
+		return VPN_ERROR_INVALID_OPERATION;
+	}
+
+	if (handle == NULL) {
+		VPN_LOG(VPN_ERROR, "VPN Handle is NULL\n");
+		return VPN_ERROR_INVALID_PARAMETER;
+	}
+
+	rv = _vpn_connect(handle, callback, user_data);
+
+	if (rv != VPN_ERROR_NONE)
+		VPN_LOG(VPN_ERROR, "Error!! VPN Remove failed.\n");
+
+	return rv;
+}
+
+EXPORT_API
+int vpn_disconnect(vpn_h handle, vpn_disconnect_cb callback, void *user_data)
+{
+	int rv;
+
+	if (is_init == false) {
+		VPN_LOG(VPN_ERROR, "Not initialized\n");
+		return VPN_ERROR_INVALID_OPERATION;
+	}
+
+	if (handle == NULL) {
+		VPN_LOG(VPN_ERROR, "VPN Handle is NULL\n");
+		return VPN_ERROR_INVALID_PARAMETER;
+	}
+
+	rv = _vpn_disconnect(handle);
+
+	if (rv != VPN_ERROR_NONE)
+		VPN_LOG(VPN_ERROR, "Error!! VPN Remove failed.\n");
+
+	return rv;
+}
+
+EXPORT_API
+GList *vpn_get_vpn_handle_list(void)
+{
+	if (is_init == false) {
+		VPN_LOG(VPN_ERROR, "Not initialized\n");
+		return NULL;
+	}
+
+	return _vpn_get_vpn_handle_list();
+}
+
+EXPORT_API
+int vpn_get_vpn_handle(const char *host, const char *domain, vpn_h *handle)
+{
+	int rv;
+
+	if (is_init == false) {
+		VPN_LOG(VPN_ERROR, "Not initialized\n");
+		return VPN_ERROR_INVALID_OPERATION;
+	}
+
+	if (host == NULL || domain == NULL || handle == NULL)
+		return VPN_ERROR_INVALID_PARAMETER;
+
+	rv = _vpn_get_vpn_handle(host, domain, handle);
+
+	if (rv != VPN_ERROR_NONE)
+		VPN_LOG(VPN_ERROR, "Error!! VPN Get Handle failed.\n");
+
+	return rv;
+}
+
+EXPORT_API
+int vpn_get_vpn_info_name(const vpn_h handle, const char **name)
+{
+	int rv;
+
+	if (is_init == false) {
+		VPN_LOG(VPN_ERROR, "Not initialized\n");
+		return VPN_ERROR_INVALID_OPERATION;
+	}
+
+	if (handle == NULL || name == NULL)
+		return VPN_ERROR_INVALID_PARAMETER;
+
+	rv = _vpn_get_vpn_info_name(handle, name);
+
+	if (rv != VPN_ERROR_NONE)
+		VPN_LOG(VPN_ERROR, "Error!! VPN Get Info (Name) failed.\n");
+
+	return rv;
+}
+
+EXPORT_API
+int vpn_get_vpn_info_type(const vpn_h handle, const char **type)
+{
+	int rv;
+
+	if (is_init == false) {
+		VPN_LOG(VPN_ERROR, "Not initialized\n");
+		return VPN_ERROR_INVALID_OPERATION;
+	}
+
+	if (handle == NULL || type == NULL)
+		return VPN_ERROR_INVALID_PARAMETER;
+
+	rv = _vpn_get_vpn_info_type(handle, type);
+
+	if (rv != VPN_ERROR_NONE)
+		VPN_LOG(VPN_ERROR, "Error!! VPN Get Info (Type) failed.\n");
+
+	return rv;
+}
+
+EXPORT_API
+int vpn_get_vpn_info_host(const vpn_h handle, const char **host)
+{
+	int rv;
+
+	if (is_init == false) {
+		VPN_LOG(VPN_ERROR, "Not initialized\n");
+		return VPN_ERROR_INVALID_OPERATION;
+	}
+
+	if (handle == NULL || host == NULL)
+		return VPN_ERROR_INVALID_PARAMETER;
+
+	rv = _vpn_get_vpn_info_host(handle, host);
+
+	if (rv != VPN_ERROR_NONE)
+		VPN_LOG(VPN_ERROR, "Error!! VPN Get Info (Host) failed.\n");
+
+	return rv;
+}
+
+EXPORT_API
+int vpn_get_vpn_info_domain(const vpn_h handle, const char **domain)
+{
+	int rv;
+
+	if (is_init == false) {
+		VPN_LOG(VPN_ERROR, "Not initialized\n");
+		return VPN_ERROR_INVALID_OPERATION;
+	}
+
+	if (handle == NULL || domain == NULL)
+		return VPN_ERROR_INVALID_PARAMETER;
+
+	rv = _vpn_get_vpn_info_domain(handle, domain);
+
+	if (rv != VPN_ERROR_NONE)
+		VPN_LOG(VPN_ERROR, "Error!! VPN Get Info (Domain) failed.\n");
+
+	return rv;
+}
+

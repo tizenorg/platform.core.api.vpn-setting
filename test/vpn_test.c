@@ -30,8 +30,9 @@
 #include <vpn.h>
 #include <tizen_error.h>
 
-gboolean test_thread(GIOChannel *source, GIOCondition condition,
-							gpointer data);
+gboolean test_thread(GIOChannel *source,
+			GIOCondition condition,
+			gpointer data);
 
 static const char *__test_convert_error_to_string(vpn_error_e err_type)
 {
@@ -89,6 +90,63 @@ static void __test_removed_callback(vpn_error_e result,
 				__test_convert_error_to_string(result));
 }
 
+static void __test_connect_callback(vpn_error_e result,
+				void *user_data)
+{
+	if (result == VPN_ERROR_NONE)
+		printf("VPN Connect Succeeded\n");
+	else
+		printf("VPN Connect Failed! error : %s",
+				__test_convert_error_to_string(result));
+}
+
+static void __test_disconnect_callback(vpn_error_e result,
+				void *user_data)
+{
+	if (result == VPN_ERROR_NONE)
+		printf("VPN Disconnect Succeeded\n");
+	else
+		printf("VPN Disconnect Failed! error : %s",
+				__test_convert_error_to_string(result));
+}
+
+static void _test_get_vpn_handle(vpn_h *handle_ptr)
+{
+	assert(handle_ptr != NULL);
+
+	char host_str[128] = { 0 };
+	char domain_str[128] = { 0 };
+	const char *name = NULL;
+	const char *type = NULL;
+	const char *host = NULL;
+	const char *domain = NULL;
+
+	GList *iter;
+	GList *handles = vpn_get_vpn_handle_list();
+	for (iter = handles; iter != NULL; iter = iter->next) {
+		printf("\n Handle = %p\n", iter->data);
+		vpn_get_vpn_info_name(iter->data, &name);
+		vpn_get_vpn_info_type(iter->data, &type);
+		vpn_get_vpn_info_host(iter->data, &host);
+		vpn_get_vpn_info_domain(iter->data, &domain);
+		printf(" Name[%p] - %s\n", iter->data, name);
+		printf(" Type[%p] - %s\n", iter->data, type);
+		printf(" Host[%p] - %s\n", iter->data, host);
+		printf(" Domain[%p] - %s\n", iter->data, domain);
+	}
+
+	printf("==================================\n");
+	printf(" Please ENTER Host: ");
+	if (scanf(" %s", host_str) < 0)
+		printf("Error in Reading Host String\n");
+
+	printf(" Please ENTER Domain: ");
+	if (scanf(" %s", domain_str) < 0)
+		printf("Error in Reading Domain String\n");
+
+	vpn_get_vpn_handle(host_str, domain_str, handle_ptr);
+}
+
 static void _test_get_user_input(char *buf, char *what)
 {
 	printf("Please ENTER %s:", what);
@@ -104,7 +162,8 @@ int test_vpn_init(void)
 	if (rv == VPN_ERROR_NONE) {
 		printf("Register Callbacks if Initialize is Successful\n");
 	} else {
-		printf("VPN init failed [%s]\n", __test_convert_error_to_string(rv));
+		printf("VPN init failed [%s]\n",
+			__test_convert_error_to_string(rv));
 		return -1;
 	}
 
@@ -117,7 +176,8 @@ int test_vpn_deinit(void)
 	int rv = vpn_deinitialize();
 
 	if (rv != VPN_ERROR_NONE) {
-		printf("VPN init failed [%s]\n", __test_convert_error_to_string(rv));
+		printf("VPN init failed [%s]\n",
+			__test_convert_error_to_string(rv));
 		return -1;
 	}
 
@@ -258,10 +318,50 @@ int test_vpn_remove(void)
 	return 1;
 }
 
+int test_vpn_connect(void)
+{
+	int rv = 0;
+	vpn_h handle = NULL;
+
+	_test_get_vpn_handle(&handle);
+
+	rv = vpn_connect(handle, __test_connect_callback, NULL);
+
+	if (rv != VPN_ERROR_NONE) {
+		printf("Fail to Connect to VPN Profile [%s]\n",
+				__test_convert_error_to_string(rv));
+		return -1;
+	}
+
+	printf("Success to Connect VPN Profile\n");
+
+	return 1;
+}
+
+int test_vpn_disconnect(void)
+{
+	int rv = 0;
+	vpn_h handle = NULL;
+
+	_test_get_vpn_handle(&handle);
+
+	rv = vpn_disconnect(handle, __test_disconnect_callback, NULL);
+
+	if (rv != VPN_ERROR_NONE) {
+		printf("Fail to Disconnect from VPN Profile [%s]\n",
+				__test_convert_error_to_string(rv));
+		return -1;
+	}
+
+	printf("Success to Disconnect VPN Profile\n");
+
+	return 1;
+}
+
 int main(int argc, char **argv)
 {
 	GMainLoop *mainloop;
-	mainloop = g_main_loop_new (NULL, FALSE);
+	mainloop = g_main_loop_new(NULL, FALSE);
 
 	GIOChannel *channel = g_io_channel_unix_new(0);
 	g_io_add_watch(channel, (G_IO_IN|G_IO_ERR|G_IO_HUP|G_IO_NVAL),
@@ -269,7 +369,7 @@ int main(int argc, char **argv)
 
 	printf("Test Thread created...\n");
 
-	g_main_loop_run (mainloop);
+	g_main_loop_run(mainloop);
 
 	return 0;
 }
@@ -295,14 +395,16 @@ gboolean test_thread(GIOChannel *source, GIOCondition condition, gpointer data)
 	if (a[0] == '\n' || a[0] == '\r') {
 		printf("\n\n Network Connection API Test App\n\n");
 		printf("Options..\n");
-		printf("1 	- VPN init and set callbacks\n");
-		printf("2 	- VPN deinit(unset callbacks automatically)\n");
-		printf("3 	- VPN Settings Initialize - Initialize Settings for Creating a VPN profile\n");
-		printf("4 	- VPN Settings Delete - Delete Settings VPN profile\n");
-		printf("5 	- VPN Settings Set Specific - Allows to add a specific setting\n");
-		printf("6 	- VPN Settings Add - Add Type,Host,Name,Domain settings\n");
+		printf("1\t- VPN init and set callbacks\n");
+		printf("2\t- VPN deinit(unset callbacks automatically)\n");
+		printf("3\t- VPN Settings Initialize - Initialize Settings for Creating a VPN profile\n");
+		printf("4\t- VPN Settings Delete - Delete Settings VPN profile\n");
+		printf("5\t- VPN Settings Set Specific - Allows to add a specific setting\n");
+		printf("6\t- VPN Settings Add - Add Type,Host,Name,Domain settings\n");
 		printf("7\t- VPN Create - Creates the VPN profile\n");
 		printf("8\t- VPN Remove - Removes the VPN profile\n");
+		printf("9\t- VPN Connect - Connect the VPN profile\n");
+		printf("a\t- VPN Disconnect - Disconnect the VPN profile\n");
 		printf("0\t- Exit\n");
 
 		printf("ENTER  - Show options menu.......\n");
@@ -332,6 +434,12 @@ gboolean test_thread(GIOChannel *source, GIOCondition condition, gpointer data)
 		break;
 	case '8':
 		rv = test_vpn_remove();
+		break;
+	case '9':
+		rv = test_vpn_connect();
+		break;
+	case 'a':
+		rv = test_vpn_disconnect();
 		break;
 	default:
 		break;
