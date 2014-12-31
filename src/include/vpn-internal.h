@@ -60,6 +60,10 @@ extern "C" {
 bool _vpn_init(void);
 bool _vpn_deinit(void);
 
+int _vpn_settings_init();
+int _vpn_settings_deinit();
+int _vpn_settings_set_specific(const char *key, const char *value);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

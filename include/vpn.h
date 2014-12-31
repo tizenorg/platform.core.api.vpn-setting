@@ -85,6 +85,49 @@ int vpn_deinitialize(void);
 * @}
 */
 
+/**
+* @addtogroup CAPI_NETWORK_VPN_SETTINGS
+* @{
+*/
+
+/**
+* @brief Initializes VPN Settings
+* @return 0 on success, otherwise negative error value.
+* @retval #VPN_ERROR_NONE  Successful
+* @retval #VPN_ERROR_INVALID_OPERATION  Invalid operation
+* @retval #VPN_ERROR_OPERATION_FAILED  Operation failed
+* @see vpn_settings_deinit()
+*/
+int vpn_settings_init();
+
+/**
+* @brief De-Initializes VPN Settings
+* @return 0 on success, otherwise negative error value.
+* @retval #VPN_ERROR_NONE  Successful
+* @retval #VPN_ERROR_INVALID_OPERATION  Invalid operation
+* @retval #VPN_ERROR_OPERATION_FAILED  Operation failed
+* @pre vpn_settings_init() Must be called before deinit
+* @see vpn_settings_deinit()
+*/
+int vpn_settings_deinit();
+
+/**
+* @brief Sets VPN Specific Settings
+* @param[in] key  The Key for the Settings
+* @param[in] value The Value for the Settings
+* @return 0 on success, otherwise negative error value.
+* @retval #VPN_ERROR_NONE  Successful
+* @retval #VPN_ERROR_INVALID_OPERATION  Invalid operation
+* @pre vpn_settings_init() must be  called before calling this API
+* @retval #VPN_ERROR_OPERATION_FAILED  Operation failed
+* @see vpn_settings_deinit()
+*/
+int vpn_settings_set_specific(const char *key, const char *value);
+
+/**
+* @}
+*/
+
 #ifdef __cplusplus
 }
 #endif

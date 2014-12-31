@@ -27,6 +27,8 @@
 
 #include "vpn-internal.h"
 
+static GHashTable *settings_hash;
+
 /*
  * Utility Functions
  */
@@ -77,3 +79,58 @@ bool _vpn_deinit(void)
 	connman_vpn_deinit();
 	return true;
 }
+
+int _vpn_settings_init()
+{
+	if (settings_hash != NULL) {
+		VPN_LOG(VPN_INFO,
+			"Settings Hash: %p Already present!", settings_hash);
+		return VPN_ERROR_INVALID_OPERATION;
+	}
+
+	settings_hash = g_hash_table_new_full(
+				g_str_hash, g_str_equal,
+				g_free, g_free);
+	VPN_LOG(VPN_INFO, "Settings Hash: %p", settings_hash);
+
+	return VPN_ERROR_NONE;
+}
+
+int _vpn_settings_deinit()
+{
+	if (settings_hash == NULL)
+		return VPN_ERROR_INVALID_OPERATION;
+
+	VPN_LOG(VPN_INFO, "Settings Hash: %p Destroyed", settings_hash);
+	g_hash_table_destroy(settings_hash);
+	settings_hash = NULL;
+
+	return VPN_ERROR_NONE;
+}
+
+int _vpn_settings_set_specific(const char *key, const char *value)
+{
+	VPN_LOG(VPN_INFO,
+		"Settings Hash: %p {%s=%s}", settings_hash, key, value);
+
+	if (key == NULL)
+		return VPN_ERROR_INVALID_PARAMETER;
+
+	if (g_hash_table_contains(settings_hash, key)) {
+		if (value == NULL) {
+			VPN_LOG(VPN_INFO, "Settings Hash: %p {%s=%s} (Removed)",
+				settings_hash, key,
+				(gchar *)g_hash_table_lookup(
+					settings_hash, key));
+			g_hash_table_remove(settings_hash, key);
+			return VPN_ERROR_NONE;
+		}
+	}
+
+	g_hash_table_replace(settings_hash,
+			(gpointer)g_strdup(key),
+			(gpointer)g_strdup(value));
+
+	return VPN_ERROR_NONE;
+}
+

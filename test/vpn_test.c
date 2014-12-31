@@ -69,6 +69,14 @@ static const char *__test_convert_error_to_string(vpn_error_e err_type)
 	return "UNKNOWN";
 }
 
+static void _test_get_user_input(char *buf, char *what)
+{
+	printf("Please ENTER %s:", what);
+	if (scanf(" %[^\n]s", buf) < 0) {
+		printf("Error in Reading the data to Buffer\n");
+	}
+}
+
 int test_vpn_init(void)
 {
 	int rv = vpn_initialize();
@@ -97,13 +105,68 @@ int test_vpn_deinit(void)
 	return 1;
 }
 
+int test_vpn_settings_init(void)
+{
+	int rv = 0;
+
+	rv = vpn_settings_init();
+
+	if (rv != VPN_ERROR_NONE) {
+		printf("Fail to Initialize Settings [%s]\n",
+				__test_convert_error_to_string(rv));
+		return -1;
+	}
+
+	printf("Success Creating Settings API's\n");
+
+	return 1;
+}
+
+int test_vpn_settings_deinit(void)
+{
+	int rv = 0;
+
+	rv = vpn_settings_deinit();
+
+	if (rv != VPN_ERROR_NONE) {
+		printf("Fail to Deinitialize Settings [%s]\n",
+				__test_convert_error_to_string(rv));
+		return -1;
+	}
+
+	printf("Success Deleting Settings API's\n");
+
+	return 1;
+}
+
+int test_vpn_settings_set_specific(void)
+{
+	int rv = 0;
+	char key[100];
+	char value[200];
+
+	_test_get_user_input(&key[0], "Key");
+	_test_get_user_input(&value[0], "Value");
+	rv = vpn_settings_set_specific(&key[0], &value[0]);
+	if (rv != VPN_ERROR_NONE) {
+		printf("Fail to Set Specific VPN Settings %s[%s]\n",
+				key, __test_convert_error_to_string(rv));
+		return -1;
+	}
+
+	printf("Success in VPN Settings Add %s=%s\n", key, value);
+
+	return 1;
+}
+
 int main(int argc, char **argv)
 {
 	GMainLoop *mainloop;
 	mainloop = g_main_loop_new (NULL, FALSE);
 
 	GIOChannel *channel = g_io_channel_unix_new(0);
-	g_io_add_watch(channel, (G_IO_IN|G_IO_ERR|G_IO_HUP|G_IO_NVAL), test_thread, NULL);
+	g_io_add_watch(channel, (G_IO_IN|G_IO_ERR|G_IO_HUP|G_IO_NVAL),
+			test_thread, NULL);
 
 	printf("Test Thread created...\n");
 
@@ -135,6 +198,9 @@ gboolean test_thread(GIOChannel *source, GIOCondition condition, gpointer data)
 		printf("Options..\n");
 		printf("1 	- VPN init and set callbacks\n");
 		printf("2 	- VPN deinit(unset callbacks automatically)\n");
+		printf("3 	- VPN Settings Initialize - Initialize Settings for Creating a VPN profile\n");
+		printf("4 	- VPN Settings Delete - Delete Settings VPN profile\n");
+		printf("5 	- VPN Settings Set Specific - Allows to add a specific setting\n");
 		printf("0 	- Exit \n");
 
 		printf("ENTER  - Show options menu.......\n");
@@ -146,6 +212,15 @@ gboolean test_thread(GIOChannel *source, GIOCondition condition, gpointer data)
 		break;
 	case '2':
 		rv = test_vpn_deinit();
+		break;
+	case '3':
+		rv = test_vpn_settings_init();
+		break;
+	case '4':
+		rv = test_vpn_settings_deinit();
+		break;
+	case '5':
+		rv = test_vpn_settings_set_specific();
 		break;
 	default:
 		break;
