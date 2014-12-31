@@ -24,16 +24,36 @@
 
 #include <connman-vpn.h>
 #include <connman-vpn-manager.h>
+#include <connman-vpn-connection.h>
 
 #include "vpn-internal.h"
 
+struct _vpn_cb_s {
+	vpn_created_cb create_cb;
+	void *create_user_data;
+	vpn_removed_cb remove_cb;
+	void *remove_user_data;
+};
+
+static struct _vpn_cb_s vpn_callbacks = {0,};
 static GHashTable *settings_hash;
 
 /*
  * Utility Functions
  */
 
-vpn_error_e _vpn_lib_error2vpn_error(enum connman_lib_err err_type)
+static void print_key_value_string(gpointer key,
+				gpointer value, gpointer user_data)
+{
+	if (user_data) {
+		VPN_LOG(VPN_INFO, " %s[%s]=%s",
+			(gchar *)user_data, (gchar *)key, (gchar *)value);
+		return;
+	}
+	VPN_LOG(VPN_INFO, " %s=%s", (gchar *)key, (gchar *)value);
+}
+
+vpn_error_e _connman_lib_error2vpn_error(enum connman_lib_err err_type)
 {
 	switch (err_type) {
 	case CONNMAN_LIB_ERR_NONE:
@@ -134,3 +154,87 @@ int _vpn_settings_set_specific(const char *key, const char *value)
 	return VPN_ERROR_NONE;
 }
 
+/*
+ *Callbacks
+ */
+static void __vpn_create_cb(vpn_error_e result)
+{
+	if (vpn_callbacks.create_cb)
+		vpn_callbacks.create_cb(result,
+				vpn_callbacks.create_user_data);
+
+	vpn_callbacks.create_cb = NULL;
+	vpn_callbacks.create_user_data = NULL;
+}
+
+static void vpn_manager_create_cb(enum connman_lib_err result,
+							void *user_data)
+{
+	VPN_LOG(VPN_INFO, "callback: %d Settings: %p\n", result, user_data);
+
+	__vpn_create_cb(_connman_lib_error2vpn_error(result));
+}
+
+static void __vpn_remove_cb(vpn_error_e result)
+{
+	if (vpn_callbacks.create_cb)
+		vpn_callbacks.create_cb(result,
+				vpn_callbacks.create_user_data);
+
+	vpn_callbacks.remove_cb = NULL;
+	vpn_callbacks.remove_user_data = NULL;
+}
+
+static void vpn_manager_remove_cb(enum connman_lib_err result,
+							void *user_data)
+{
+	VPN_LOG(VPN_INFO, "callback: %d Settings: %p\n", result, user_data);
+
+	__vpn_remove_cb(_connman_lib_error2vpn_error(result));
+}
+
+int _vpn_create(vpn_created_cb callback, void *user_data)
+{
+	enum connman_lib_err err = CONNMAN_LIB_ERR_NONE;
+	if (!settings_hash)
+		return VPN_ERROR_INVALID_OPERATION;
+
+	VPN_LOG(VPN_INFO, "");
+
+	vpn_callbacks.create_cb = callback;
+	vpn_callbacks.create_user_data = user_data;
+
+	g_hash_table_foreach(settings_hash,
+		print_key_value_string, "VPNSettings");
+
+	err = connman_vpn_manager_create(settings_hash,
+		vpn_manager_create_cb, NULL);
+	if (err != CONNMAN_LIB_ERR_NONE)
+		return _connman_lib_error2vpn_error(err);
+
+	return VPN_ERROR_NONE;
+
+}
+
+int _vpn_remove(vpn_h handle, vpn_removed_cb callback, void *user_data)
+{
+	enum connman_lib_err err = CONNMAN_LIB_ERR_NONE;
+
+	VPN_LOG(VPN_INFO, "");
+
+	vpn_callbacks.remove_cb = callback;
+	vpn_callbacks.remove_user_data = user_data;
+
+	GList *connections = vpn_get_connections();
+	if (NULL == g_list_find(connections, handle)) {
+		VPN_LOG(VPN_ERROR, "No Connections with the %p Handle", handle);
+		return VPN_ERROR_INVALID_PARAMETER;
+	}
+
+	const char *path = vpn_connection_get_path(handle);
+	err = connman_vpn_manager_remove(path, vpn_manager_remove_cb, NULL);
+	if (err != CONNMAN_LIB_ERR_NONE)
+		return _connman_lib_error2vpn_error(err);
+
+	return VPN_ERROR_NONE;
+}

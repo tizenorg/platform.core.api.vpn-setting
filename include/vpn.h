@@ -59,6 +59,33 @@ typedef enum {
 */
 
 /**
+* @addtogroup CAPI_NETWORK_VPN_MONITOR_MODULE
+* @{
+*/
+
+/**
+* @brief Called after vpn_create() is completed.
+* @param[in] result  The result
+* @param[in] user_data The user data passed from vpn_create()
+* @pre vpn_create() will invoke this callback function.
+* @see vpn_create()
+*/
+typedef void(*vpn_created_cb)(vpn_error_e result, void *user_data);
+
+/**
+* @brief Called after vpn_remove() is completed.
+* @param[in] result  The result
+* @param[in] user_data The user data passed from vpn_remove()
+* @pre vpn_remove() will invoke this callback function.
+* @see vpn_remove()
+*/
+typedef void(*vpn_removed_cb)(vpn_error_e result, void *user_data);
+/**
+* @}
+*/
+
+
+/**
 * @addtogroup CAPI_NETWORK_VPN_MODULE
 * @{
 */
@@ -176,6 +203,45 @@ int vpn_settings_set_domain(const char *domain);
 * @}
 */
 
+
+/**
+* @addtogroup CAPI_NETWORK_VPN_MANAGER_MODULE
+* @{
+*/
+
+/**
+* @brief Create VPN Profile, asynchronously.
+* @param[in] settings  The VPN related Settings Handler, This can't be NULL.
+* @param[in] callback  The callback function to be called.
+*   This can be NULL if you don't want to get the notification.
+* @param[in] user_data The user data passed to the callback function
+* @return 0 on success, otherwise negative error value.
+* @retval #VPN_ERROR_NONE  Successful
+* @retval #VPN_ERROR_INVALID_OPERATION  Invalid operation
+* @retval #VPN_ERROR_OPERATION_FAILED  Operation failed
+* @retval #VPN_ERROR_SECURITY_RESTRICTED  Restricted by security system policy
+* @post vpn_created_cb() will be invoked
+* @see vpn_settings()
+* @see vpn_created_cb()
+* @see vpn_remove()
+*/
+int vpn_create(vpn_created_cb callback, void *user_data);
+
+/**
+* @brief Remove VPN Profile, asynchronously.
+* @param[in] handle  The VPN Connection Identifier.
+* @param[in] callback  The callback function to be called.
+*   This can be NULL if you don't want to get the notification.
+* @param[in] user_data The user data passed to the callback function
+* @return 0 on success, otherwise negative error value.
+* @retval #VPN_ERROR_NONE  Successful
+* @retval #VPN_ERROR_INVALID_OPERATION  Invalid operation
+* @retval #VPN_ERROR_OPERATION_FAILED  Operation failed
+* @post vpn_removed_cb() will be invoked
+* @see vpn_removed_cb()
+* @see vpn_create()
+*/
+int vpn_remove(vpn_h handle, vpn_removed_cb callback, void *user_data);
 #ifdef __cplusplus
 }
 #endif

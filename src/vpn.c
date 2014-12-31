@@ -184,3 +184,42 @@ EXPORT_API int vpn_settings_set_domain(const char *domain)
 	return rv;
 }
 
+EXPORT_API int vpn_create(vpn_created_cb callback, void *user_data)
+{
+	int rv;
+
+	if (is_init == false) {
+		VPN_LOG(VPN_ERROR, "Not initialized\n");
+		return VPN_ERROR_INVALID_OPERATION;
+	}
+
+	rv = _vpn_create(callback, user_data);
+
+	if (rv != VPN_ERROR_NONE)
+		VPN_LOG(VPN_ERROR, "Error!! VPN Create failed.\n");
+
+	return rv;
+}
+
+EXPORT_API
+int vpn_remove(vpn_h handle, vpn_removed_cb callback, void *user_data)
+{
+	int rv;
+
+	if (is_init == false) {
+		VPN_LOG(VPN_ERROR, "Not initialized\n");
+		return VPN_ERROR_INVALID_OPERATION;
+	}
+
+	if (handle == NULL) {
+		VPN_LOG(VPN_ERROR, "VPN Handle is NULL\n");
+		return VPN_ERROR_INVALID_PARAMETER;
+	}
+
+	rv = _vpn_remove(handle, callback, user_data);
+
+	if (rv != VPN_ERROR_NONE)
+		VPN_LOG(VPN_ERROR, "Error!! VPN Remove failed.\n");
+
+	return rv;
+}

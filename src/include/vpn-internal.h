@@ -64,6 +64,9 @@ int _vpn_settings_init();
 int _vpn_settings_deinit();
 int _vpn_settings_set_specific(const char *key, const char *value);
 
+int _vpn_create(vpn_created_cb callback, void *user_data);
+int _vpn_remove(vpn_h handle, vpn_removed_cb callback, void *user_data);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

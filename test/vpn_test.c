@@ -69,6 +69,26 @@ static const char *__test_convert_error_to_string(vpn_error_e err_type)
 	return "UNKNOWN";
 }
 
+static void __test_created_callback(vpn_error_e result,
+				void *user_data)
+{
+	if (result == VPN_ERROR_NONE)
+		printf("VPN Create Succeeded\n");
+	else
+		printf("VPN Create Failed! error : %s",
+				__test_convert_error_to_string(result));
+}
+
+static void __test_removed_callback(vpn_error_e result,
+				void *user_data)
+{
+	if (result == VPN_ERROR_NONE)
+		printf("VPN Remove Succeeded\n");
+	else
+		printf("VPN Remove Failed! error : %s",
+				__test_convert_error_to_string(result));
+}
+
 static void _test_get_user_input(char *buf, char *what)
 {
 	printf("Please ENTER %s:", what);
@@ -201,6 +221,43 @@ int test_vpn_settings_set_specific(void)
 	return 1;
 }
 
+int test_vpn_create(void)
+{
+	int rv = 0;
+
+	rv = vpn_create(__test_created_callback, NULL);
+
+	if (rv != VPN_ERROR_NONE) {
+		printf("Fail to Create VPN Profile [%s]\n",
+				__test_convert_error_to_string(rv));
+		return -1;
+	}
+
+	printf("Success to Create VPN Profile\n");
+
+	return 1;
+}
+
+int test_vpn_remove(void)
+{
+	int rv = 0;
+
+	/*TODO: Get the List of VPN Profiles Identifiers
+	 * Prompt user to which one to be deleted */
+
+	rv = vpn_remove(NULL, __test_removed_callback, NULL);
+
+	if (rv != VPN_ERROR_NONE) {
+		printf("Fail to Remove VPN Profile [%s]\n",
+				__test_convert_error_to_string(rv));
+		return -1;
+	}
+
+	printf("Success to Remove VPN Profile\n");
+
+	return 1;
+}
+
 int main(int argc, char **argv)
 {
 	GMainLoop *mainloop;
@@ -244,7 +301,9 @@ gboolean test_thread(GIOChannel *source, GIOCondition condition, gpointer data)
 		printf("4 	- VPN Settings Delete - Delete Settings VPN profile\n");
 		printf("5 	- VPN Settings Set Specific - Allows to add a specific setting\n");
 		printf("6 	- VPN Settings Add - Add Type,Host,Name,Domain settings\n");
-		printf("0 	- Exit \n");
+		printf("7\t- VPN Create - Creates the VPN profile\n");
+		printf("8\t- VPN Remove - Removes the VPN profile\n");
+		printf("0\t- Exit\n");
 
 		printf("ENTER  - Show options menu.......\n");
 	}
@@ -267,6 +326,12 @@ gboolean test_thread(GIOChannel *source, GIOCondition condition, gpointer data)
 		break;
 	case '6':
 		rv = test_vpn_settings_add();
+		break;
+	case '7':
+		rv = test_vpn_create();
+		break;
+	case '8':
+		rv = test_vpn_remove();
 		break;
 	default:
 		break;
