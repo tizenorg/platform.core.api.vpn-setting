@@ -6,12 +6,12 @@ PROJECT(${fw_name})
 SET(CMAKE_INSTALL_PREFIX /usr)
 SET(PREFIX ${CMAKE_INSTALL_PREFIX})
 
-SET(INC_DIR include)
+SET(INC_DIR include dvpnlib/include/)
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/${INC_DIR}/)
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/include/)
 
 
-SET(dependents "dlog vconf capi-base-common glib-2.0 winet-lib connman-lib")
+SET(dependents "dlog vconf capi-base-common glib-2.0 gio-2.0")
 SET(pc_dependents "capi-base-common")
 
 INCLUDE(FindPkgConfig)
@@ -33,7 +33,8 @@ ADD_DEFINITIONS("-DTIZEN_DEBUG")
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed -Wl,--rpath=${LIB_INSTALL_DIR}")
 
 aux_source_directory(src SOURCES)
-ADD_LIBRARY(${fw_name} SHARED ${SOURCES})
+aux_source_directory(dvpnlib/src DVPNLIB_SOURCES)
+ADD_LIBRARY(${fw_name} SHARED ${SOURCES} ${DVPNLIB_SOURCES})
 
 TARGET_LINK_LIBRARIES(${fw_name} ${${fw_name}_LDFLAGS})
 

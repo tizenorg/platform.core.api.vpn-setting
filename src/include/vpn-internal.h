@@ -20,7 +20,7 @@
 #ifndef __VPN_CONNECTION_PRIVATE_H__
 #define __VPN_CONNECTION_PRIVATE_H__
 
-#include <connman-lib-common.h>
+#include <dvpnlib-common.h>
 
 #include "vpn.h"
 #include "common.h"

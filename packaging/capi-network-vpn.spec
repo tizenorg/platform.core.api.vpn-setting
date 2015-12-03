@@ -1,5 +1,5 @@
 Name:       capi-network-vpn
-Summary:    Network VPN library in TIZEN C API
+Summary:    Default VPN Library
 Version:    0.1.0_0
 Release:    1
 Group:      System/Network
@@ -11,27 +11,24 @@ BuildRequires:  pkgconfig(dlog)
 BuildRequires:  pkgconfig(glib-2.0)
 BuildRequires:  pkgconfig(vconf)
 BuildRequires:  pkgconfig(capi-base-common)
-BuildRequires:  pkgconfig(winet-lib)
-BuildRequires:  pkgconfig(connman-lib)
 
 %description
-Network Wi-Fi library in Tizen C API
+Library code for CAPI's to interact with the Default VPN functionality on TIZEN platform.
 
 %package devel
-Summary:  Network Wi-Fi library in Tizen C API (Development)
+Summary:  Default VPN Development Package
 Group:    System/Network
 Requires: %{name} = %{version}-%{release}
 
 %description devel
-Network Wi-Fi library in Tizen C API (Development)
+Development Library for Default VPN functionality on TIZEN platform.
 
 %package test
-Summary:    Test case for VPN (DEV)
+Summary:    Default VPN Test Package
 Requires:   %{name} = %{version}
 
 %description test
-Test case for VPN (DEV). Some test programs to test the APIs
-and interfaces about VPN or other inner code.
+Test cases for Default VPN Functionality on TIZEN platform.
 
 %prep
 %setup -q
@@ -64,7 +61,7 @@ cp LICENSE.APLv2 %{buildroot}%{_datadir}/license/capi-network-vpn
 
 %files devel
 %manifest %{name}.manifest
-%{_includedir}/network/*.h
+#%{_includedir}/network/*.h
 %{_libdir}/pkgconfig/*.pc
 %{_libdir}/libcapi-network-vpn.so
 

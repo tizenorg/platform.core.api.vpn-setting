@@ -22,9 +22,9 @@
 #include <ctype.h>
 #include <glib.h>
 
-#include <connman-vpn.h>
-#include <connman-vpn-manager.h>
-#include <connman-vpn-connection.h>
+#include <dvpnlib-vpn.h>
+#include <dvpnlib-vpn-manager.h>
+#include <dvpnlib-vpn-connection.h>
 
 #include "vpn-internal.h"
 
@@ -57,25 +57,25 @@ static void print_key_value_string(gpointer key,
 	VPN_LOG(VPN_INFO, " %s=%s", (gchar *)key, (gchar *)value);
 }
 
-vpn_error_e _connman_lib_error2vpn_error(enum connman_lib_err err_type)
+vpn_error_e _dvpnlib_error2vpn_error(enum dvpnlib_err err_type)
 {
 	switch (err_type) {
-	case CONNMAN_LIB_ERR_NONE:
+	case DVPNLIB_ERR_NONE:
 		return VPN_ERROR_NONE;
-	case CONNMAN_LIB_ERR_ALREADY_EXISTS:
+	case DVPNLIB_ERR_ALREADY_EXISTS:
 		return VPN_ERROR_INVALID_OPERATION;
-	case CONNMAN_LIB_ERR_NOT_REGISTERED:
+	case DVPNLIB_ERR_NOT_REGISTERED:
 		return VPN_ERROR_INVALID_OPERATION;
-	case CONNMAN_LIB_ERR_NOT_CONNECTED:
+	case DVPNLIB_ERR_NOT_CONNECTED:
 		return VPN_ERROR_NO_CONNECTION;
-	case CONNMAN_LIB_ERR_ALREADY_CONNECTED:
+	case DVPNLIB_ERR_ALREADY_CONNECTED:
 		return VPN_ERROR_ALREADY_EXISTS;
-	case CONNMAN_LIB_ERR_IN_PROGRESS:
+	case DVPNLIB_ERR_IN_PROGRESS:
 		return VPN_ERROR_NOW_IN_PROGRESS;
-	case CONNMAN_LIB_ERR_OPERATION_ABORTED:
+	case DVPNLIB_ERR_OPERATION_ABORTED:
 		return VPN_ERROR_OPERATION_ABORTED;
-	case CONNMAN_LIB_ERR_OPERATION_TIMEOUT:
-	case CONNMAN_LIB_ERR_TIMEOUT:
+	case DVPNLIB_ERR_OPERATION_TIMEOUT:
+	case DVPNLIB_ERR_TIMEOUT:
 		return VPN_ERROR_NO_REPLY;
 	default:
 		return VPN_ERROR_OPERATION_FAILED;
@@ -83,14 +83,14 @@ vpn_error_e _connman_lib_error2vpn_error(enum connman_lib_err err_type)
 }
 
 /*
- *Functions Actually use Connman VPN Library
+ *Functions Actually use Default VPN Library
  */
 
 bool _vpn_init(void)
 {
 	int rv;
 
-	rv = connman_vpn_init();
+	rv = dvpnlib_vpn_init();
 
 	if (rv != 0)
 		return false;
@@ -100,7 +100,7 @@ bool _vpn_init(void)
 
 bool _vpn_deinit(void)
 {
-	connman_vpn_deinit();
+	dvpnlib_vpn_deinit();
 	return true;
 }
 
@@ -171,12 +171,12 @@ static void __vpn_create_cb(vpn_error_e result)
 	vpn_callbacks.create_user_data = NULL;
 }
 
-static void vpn_manager_create_cb(enum connman_lib_err result,
+static void vpn_manager_create_cb(enum dvpnlib_err result,
 							void *user_data)
 {
 	VPN_LOG(VPN_INFO, "callback: %d Settings: %p\n", result, user_data);
 
-	__vpn_create_cb(_connman_lib_error2vpn_error(result));
+	__vpn_create_cb(_dvpnlib_error2vpn_error(result));
 }
 
 static void __vpn_remove_cb(vpn_error_e result)
@@ -189,17 +189,17 @@ static void __vpn_remove_cb(vpn_error_e result)
 	vpn_callbacks.remove_user_data = NULL;
 }
 
-static void vpn_manager_remove_cb(enum connman_lib_err result,
+static void vpn_manager_remove_cb(enum dvpnlib_err result,
 							void *user_data)
 {
 	VPN_LOG(VPN_INFO, "callback: %d Settings: %p\n", result, user_data);
 
-	__vpn_remove_cb(_connman_lib_error2vpn_error(result));
+	__vpn_remove_cb(_dvpnlib_error2vpn_error(result));
 }
 
 int _vpn_create(vpn_created_cb callback, void *user_data)
 {
-	enum connman_lib_err err = CONNMAN_LIB_ERR_NONE;
+	enum dvpnlib_err err = DVPNLIB_ERR_NONE;
 	if (!settings_hash)
 		return VPN_ERROR_INVALID_OPERATION;
 
@@ -211,10 +211,10 @@ int _vpn_create(vpn_created_cb callback, void *user_data)
 	g_hash_table_foreach(settings_hash,
 		print_key_value_string, "VPNSettings");
 
-	err = connman_vpn_manager_create(settings_hash,
+	err = dvpnlib_vpn_manager_create(settings_hash,
 		vpn_manager_create_cb, NULL);
-	if (err != CONNMAN_LIB_ERR_NONE)
-		return _connman_lib_error2vpn_error(err);
+	if (err != DVPNLIB_ERR_NONE)
+		return _dvpnlib_error2vpn_error(err);
 
 	return VPN_ERROR_NONE;
 
@@ -222,7 +222,7 @@ int _vpn_create(vpn_created_cb callback, void *user_data)
 
 int _vpn_remove(vpn_h handle, vpn_removed_cb callback, void *user_data)
 {
-	enum connman_lib_err err = CONNMAN_LIB_ERR_NONE;
+	enum dvpnlib_err err = DVPNLIB_ERR_NONE;
 
 	VPN_LOG(VPN_INFO, "");
 
@@ -236,9 +236,9 @@ int _vpn_remove(vpn_h handle, vpn_removed_cb callback, void *user_data)
 	}
 
 	const char *path = vpn_connection_get_path(handle);
-	err = connman_vpn_manager_remove(path, vpn_manager_remove_cb, NULL);
-	if (err != CONNMAN_LIB_ERR_NONE)
-		return _connman_lib_error2vpn_error(err);
+	err = dvpnlib_vpn_manager_remove(path, vpn_manager_remove_cb, NULL);
+	if (err != DVPNLIB_ERR_NONE)
+		return _dvpnlib_error2vpn_error(err);
 
 	return VPN_ERROR_NONE;
 }
@@ -257,12 +257,12 @@ static void __vpn_connect_cb(vpn_error_e result)
 	vpn_callbacks.connect_user_data = NULL;
 }
 
-static void vpn_manager_connect_cb(enum connman_lib_err result,
+static void vpn_manager_connect_cb(enum dvpnlib_err result,
 							void *user_data)
 {
 	VPN_LOG(VPN_INFO, "callback: %d Settings: %p\n", result, user_data);
 
-	__vpn_connect_cb(_connman_lib_error2vpn_error(result));
+	__vpn_connect_cb(_dvpnlib_error2vpn_error(result));
 }
 
 /*
@@ -271,7 +271,7 @@ static void vpn_manager_connect_cb(enum connman_lib_err result,
 
 int _vpn_connect(vpn_h handle, vpn_removed_cb callback, void *user_data)
 {
-	enum connman_lib_err err = CONNMAN_LIB_ERR_NONE;
+	enum dvpnlib_err err = DVPNLIB_ERR_NONE;
 
 	VPN_LOG(VPN_INFO, "");
 
@@ -289,8 +289,8 @@ int _vpn_connect(vpn_h handle, vpn_removed_cb callback, void *user_data)
 		return VPN_ERROR_ALREADY_EXISTS;
 
 	err = vpn_connection_connect(handle, vpn_manager_connect_cb, NULL);
-	if (err != CONNMAN_LIB_ERR_NONE)
-		return _connman_lib_error2vpn_error(err);
+	if (err != DVPNLIB_ERR_NONE)
+		return _dvpnlib_error2vpn_error(err);
 
 	return VPN_ERROR_NONE;
 }
@@ -301,7 +301,7 @@ int _vpn_connect(vpn_h handle, vpn_removed_cb callback, void *user_data)
 
 int _vpn_disconnect(vpn_h handle)
 {
-	enum connman_lib_err err = CONNMAN_LIB_ERR_NONE;
+	enum dvpnlib_err err = DVPNLIB_ERR_NONE;
 
 	VPN_LOG(VPN_INFO, "");
 
@@ -316,8 +316,8 @@ int _vpn_disconnect(vpn_h handle)
 		return VPN_ERROR_NO_CONNECTION;
 
 	err = vpn_connection_disconnect(handle);
-	if (err != CONNMAN_LIB_ERR_NONE)
-		return _connman_lib_error2vpn_error(err);
+	if (err != DVPNLIB_ERR_NONE)
+		return _dvpnlib_error2vpn_error(err);
 
 	return VPN_ERROR_NONE;
 }
