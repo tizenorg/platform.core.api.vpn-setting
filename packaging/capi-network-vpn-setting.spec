@@ -1,11 +1,11 @@
-Name:       capi-network-vpn
+Name:       capi-network-vpn-setting
 Summary:    Default VPN Library
 Version:    0.1.0_0
 Release:    1
 Group:      System/Network
 License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
-Source1001: 	capi-network-vpn.manifest
+Source1001: 	capi-network-vpn-setting.manifest
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(dlog)
 BuildRequires:  pkgconfig(glib-2.0)
@@ -47,7 +47,7 @@ make %{?_smp_mflags}
 
 #License
 mkdir -p %{buildroot}%{_datadir}/license
-cp LICENSE.APLv2 %{buildroot}%{_datadir}/license/capi-network-vpn
+cp LICENSE.APLv2 %{buildroot}%{_datadir}/license/capi-network-vpn-setting
 
 %post -p /sbin/ldconfig
 
@@ -56,15 +56,16 @@ cp LICENSE.APLv2 %{buildroot}%{_datadir}/license/capi-network-vpn
 
 %files
 %manifest %{name}.manifest
-%attr(644,-,-) %{_libdir}/libcapi-network-vpn.so.*
-%{_datadir}/license/capi-network-vpn
+%attr(644,-,-) %{_libdir}/libcapi-network-vpn-setting.so.*
+%{_datadir}/license/capi-network-vpn-setting
 
 %files devel
 %manifest %{name}.manifest
 #%{_includedir}/network/*.h
 %{_libdir}/pkgconfig/*.pc
-%{_libdir}/libcapi-network-vpn.so
+%{_libdir}/libcapi-network-vpn-setting.so
 
 %files test
 %manifest %{name}.manifest
-%{_libdir}/vpn-capi-test/capi-vpn-test
+%{_libdir}/vpn_setting_test
+%{_bindir}/vpn_setting_test
