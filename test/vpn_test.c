@@ -137,11 +137,11 @@ static void _test_get_vpn_handle(vpn_h *handle_ptr)
 
 	printf("==================================\n");
 	printf(" Please ENTER Host: ");
-	if (scanf(" %s", host_str) < 0)
+	if (scanf(" %127s", host_str) < 0)
 		printf("Error in Reading Host String\n");
 
 	printf(" Please ENTER Domain: ");
-	if (scanf(" %s", domain_str) < 0)
+	if (scanf(" %127s", domain_str) < 0)
 		printf("Error in Reading Domain String\n");
 
 	vpn_get_vpn_handle(host_str, domain_str, handle_ptr);
