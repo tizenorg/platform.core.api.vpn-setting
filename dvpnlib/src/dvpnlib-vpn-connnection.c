@@ -319,9 +319,8 @@ static void parse_connection_property_server_routes(
 	GVariantIter *route_entry;
 
 	g_variant_iter_init(&outer, server_routes);
-	if (g_variant_iter_n_children(&outer) == 0) {
+	if (g_variant_iter_n_children(&outer) == 0)
 		return;
-	}
 
 	if (connection->server_routes)
 		g_slist_free_full(connection->server_routes,

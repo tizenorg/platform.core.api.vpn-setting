@@ -150,9 +150,8 @@ static void _test_get_vpn_handle(vpn_h *handle_ptr)
 static void _test_get_user_input(char *buf, char *what)
 {
 	printf("Please ENTER %s:", what);
-	if (scanf(" %[^\n]s", buf) < 0) {
+	if (scanf(" %[^\n]s", buf) < 0)
 		printf("Error in Reading the data to Buffer\n");
-	}
 }
 
 int test_vpn_init(void)

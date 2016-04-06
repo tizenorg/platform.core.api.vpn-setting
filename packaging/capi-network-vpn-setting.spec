@@ -1,6 +1,6 @@
 Name:       capi-network-vpn-setting
 Summary:    Default VPN Library
-Version:    0.1.0_1
+Version:    0.1.0_2
 Release:    1
 Group:      System/Network
 License:    Apache-2.0
