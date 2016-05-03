@@ -261,7 +261,10 @@ static void parse_connection_property_user_routes(
 	if (g_variant_iter_n_children(&outer) == 0)
 		return;
 
-	if (connection->user_routes)
+	if (connection->user_routes == NULL) {
+		ERROR("connection->server_routes is NULL");
+		return;
+	} else
 		g_slist_free_full(connection->user_routes,
 				free_vpn_connection_route);
 
@@ -322,7 +325,10 @@ static void parse_connection_property_server_routes(
 	if (g_variant_iter_n_children(&outer) == 0)
 		return;
 
-	if (connection->server_routes)
+	if (connection->server_routes == NULL) {
+		ERROR("connection->server_routes is NULL");
+		return;
+	} else
 		g_slist_free_full(connection->server_routes,
 				free_vpn_connection_route);
 
